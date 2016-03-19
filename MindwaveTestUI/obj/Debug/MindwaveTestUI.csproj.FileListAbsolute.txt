@@ -1,0 +1,13 @@
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\bin\Debug\MindwaveTestUI.exe.config
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\bin\Debug\MindwaveTestUI.exe
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\bin\Debug\MindwaveTestUI.pdb
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\bin\Debug\ThinkGear.dll
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\bin\Debug\Jayrock.Json.dll
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\bin\Debug\NLog.dll
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\bin\Debug\NLog.xml
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\obj\Debug\MindwaveTestUI.csprojResolveAssemblyReference.cache
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\obj\Debug\MindwaveTestUI.Form1.resources
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\obj\Debug\MindwaveTestUI.Properties.Resources.resources
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\obj\Debug\MindwaveTestUI.csproj.GenerateResource.Cache
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\obj\Debug\MindwaveTestUI.exe
+D:\Corey\Documents\Visual Studio 2015\Projects\MindwaveTestUI\MindwaveTestUI\obj\Debug\MindwaveTestUI.pdb
