@@ -12,12 +12,12 @@ namespace MindwaveTestUI
     {
         static Connector connector;
         static byte poorSig;
-        static Form1 form;
+        static UIForm form;
         static double[] dataBuffer;
         static int BUFFER_SIZE = 1000;
         static int bufferPointer = 0;
 
-        public static void SetFormReference(Form1 formReference)
+        public static void SetFormReference(UIForm formReference)
         {
             form = formReference;
         }

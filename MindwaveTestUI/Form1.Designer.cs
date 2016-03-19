@@ -1,6 +1,6 @@
 ﻿namespace MindwaveTestUI
 {
-    partial class Form1
+    partial class UIForm
     {
         /// <summary>
         /// Required designer variable.

@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace MindwaveTestUI
 {
-    public partial class Form1 : Form
+    public partial class UIForm : Form
     {
-        public Form1()
+        public UIForm()
         {
             InitializeComponent();
         }
