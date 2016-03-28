@@ -37,6 +37,7 @@
             this.clickTrainingBtn = new System.Windows.Forms.Button();
             this.relaxAverTb = new System.Windows.Forms.TextBox();
             this.relaxAverLbl = new System.Windows.Forms.Label();
+            this.resulLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // connStatisLbl
@@ -119,11 +120,22 @@
             this.relaxAverLbl.TabIndex = 7;
             this.relaxAverLbl.Text = "Relax Sample Average: ";
             // 
+            // resulLbl
+            // 
+            this.resulLbl.AutoSize = true;
+            this.resulLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.resulLbl.ForeColor = System.Drawing.Color.Red;
+            this.resulLbl.Location = new System.Drawing.Point(1115, 259);
+            this.resulLbl.Name = "resulLbl";
+            this.resulLbl.Size = new System.Drawing.Size(0, 26);
+            this.resulLbl.TabIndex = 9;
+            // 
             // UIForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1481, 673);
+            this.Controls.Add(this.resulLbl);
             this.Controls.Add(this.relaxAverTb);
             this.Controls.Add(this.relaxAverLbl);
             this.Controls.Add(this.clickTrainingBtn);
@@ -153,6 +165,7 @@
         private System.Windows.Forms.Button clickTrainingBtn;
         private System.Windows.Forms.TextBox relaxAverTb;
         private System.Windows.Forms.Label relaxAverLbl;
+        private System.Windows.Forms.Label resulLbl;
     }
 }
 

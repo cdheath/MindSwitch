@@ -128,5 +128,19 @@ namespace MindwaveTestUI
             timer.Start();
             clickTrainingBtn.Text = "Training in Progess";
         }
+
+        public void SetResultText(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate () {
+                    SetResultText(text);
+                }));
+            }
+            else
+            {
+                this.resulLbl.Text = text;
+            }
+        }
     }
 }

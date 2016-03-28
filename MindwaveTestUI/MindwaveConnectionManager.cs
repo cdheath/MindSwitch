@@ -14,12 +14,14 @@ namespace MindwaveTestUI
         static byte poorSig;
         static UIForm form;
         static double[] dataBuffer;
-        static int BUFFER_SIZE = 1000;
+        static int BUFFER_SIZE = 5;
         static int bufferPointer = 0;
         static bool collectRelaxTrainingSample = false;
         static DeltaWaveArray relaxTrainingSample = new DeltaWaveArray();
         static bool collectClickTrainingSample = false;
         static DeltaWaveArray clickTrainingSample = new DeltaWaveArray();
+        static bool finishedTraining = false;
+        static decimal THRESHOLD_VALUE = 1000;
 
         public static void SetFormReference(UIForm formReference)
         {
@@ -103,11 +105,19 @@ namespace MindwaveTestUI
                     {
                         clickTrainingSample.AddValue(tgParser.ParsedData[i]["EegPowerDelta"]);
                     }
-
-                    if(collectRelaxTrainingSample)
+                    else if(collectRelaxTrainingSample)
                     {
                         relaxTrainingSample.AddValue(tgParser.ParsedData[i]["EegPowerDelta"]);
                     }
+                    else if(finishedTraining)
+                    {
+                        AddData(tgParser.ParsedData[i]["EegPowerDelta"]);
+                        if (CheckForEvent(dataBuffer, clickTrainingSample.Average()))
+                        {
+                            form.SetResultText("CLICK DETECTED!");
+                        }
+                    }
+
                 }
 
                 #region ParsedData if statements from sample - kept for reference
@@ -219,6 +229,7 @@ namespace MindwaveTestUI
         {
             collectClickTrainingSample = false;
             form.SetClickAverageText(clickTrainingSample.Average().ToString());
+            finishedTraining = true;
         }
 
         public static void StartCollectingRelaxTrainingSample()
@@ -230,6 +241,20 @@ namespace MindwaveTestUI
         {
             collectRelaxTrainingSample = false;
             form.SetRelaxAverageText(relaxTrainingSample.Average().ToString());
+        }
+
+        public static bool CheckForEvent(double[] collectedData, double sampleAverage)
+        {
+            double collectedDataAverage = 0;
+
+            foreach(double datum in collectedData)
+            {
+                collectedDataAverage += datum;
+            }
+
+            collectedDataAverage = collectedDataAverage / collectedData.Length;
+
+            return Math.Abs((decimal)(sampleAverage - collectedDataAverage)) < THRESHOLD_VALUE ? true : false;
         }
     }
 }
