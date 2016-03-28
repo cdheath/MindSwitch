@@ -61,12 +61,12 @@ namespace MindwaveTestUI
             }
         }
 
-        public void SetAverageText(string text)
+        public void SetClickAverageText(string text)
         {
             if (this.InvokeRequired)
             {
                 Invoke(new MethodInvoker(delegate () {
-                    SetAverageText(text);
+                    SetClickAverageText(text);
                 }));
             }
             else
@@ -75,9 +75,58 @@ namespace MindwaveTestUI
             }
         }
 
+        public void SetRelaxAverageText(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate () {
+                    SetRelaxAverageText(text);
+                }));
+            }
+            else
+            {
+                this.relaxAverTb.Text = text;
+            }
+        }
+
+
         private void Form1_Deactivate(object sender, EventArgs e)
         {
             MindwaveConnectionManager.CloseConnector();
+        }
+
+        private void trainingBtn_Click(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.StartCollectingRelaxTrainingSample();
+
+            var timer = new Timer();
+            timer.Interval = 8000;
+            timer.Tick += new EventHandler(TimerTick);
+            timer.Start();
+            trainingBtn.Text = "Training in Progess";
+        }
+
+        private void TimerTick(object sender, EventArgs e)
+        {
+            trainingBtn.Text = "Training Complete";
+            MindwaveConnectionManager.StopCollectingRelaxTrainingSample();
+        }
+
+        private void ClickTimerTick(object sender, EventArgs e)
+        {
+            clickTrainingBtn.Text = "Training Complete";
+            MindwaveConnectionManager.StopCollectingClickTrainingSample();
+        }
+
+        private void clickTrainingBtn_Click(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.StartCollectingClickTrainingSample();
+
+            var timer = new Timer();
+            timer.Interval = 8000;
+            timer.Tick += new EventHandler(ClickTimerTick);
+            timer.Start();
+            clickTrainingBtn.Text = "Training in Progess";
         }
     }
 }

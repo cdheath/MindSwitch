@@ -16,6 +16,10 @@ namespace MindwaveTestUI
         static double[] dataBuffer;
         static int BUFFER_SIZE = 1000;
         static int bufferPointer = 0;
+        static bool collectRelaxTrainingSample = false;
+        static DeltaWaveArray relaxTrainingSample = new DeltaWaveArray();
+        static bool collectClickTrainingSample = false;
+        static DeltaWaveArray clickTrainingSample = new DeltaWaveArray();
 
         public static void SetFormReference(UIForm formReference)
         {
@@ -87,12 +91,33 @@ namespace MindwaveTestUI
             for (int i = 0; i < tgParser.ParsedData.Length; i++)
             {
 
+
+                if (tgParser.ParsedData[i].ContainsKey("EegPowerDelta"))
+                {
+
+                    //Console.WriteLine("Delta: " + tgParser.ParsedData[i]["EegPowerDelta"]);
+                                      form.SetDataText((tgParser.ParsedData[i]["EegPowerDelta"]) + "\t");
+                    //                    AddData(tgParser.ParsedData[i]["EegPowerDelta"]);
+
+                    if(collectClickTrainingSample)
+                    {
+                        clickTrainingSample.AddValue(tgParser.ParsedData[i]["EegPowerDelta"]);
+                    }
+
+                    if(collectRelaxTrainingSample)
+                    {
+                        relaxTrainingSample.AddValue(tgParser.ParsedData[i]["EegPowerDelta"]);
+                    }
+                }
+
+                #region ParsedData if statements from sample - kept for reference
+
                 if (tgParser.ParsedData[i].ContainsKey("Raw"))
                 {
 
                     //Console.WriteLine("Raw Value:" + tgParser.ParsedData[i]["Raw"]);
-  //                  form.SetDataText((tgParser.ParsedData[i]["Raw"]) +"\t");
- //                   AddData(tgParser.ParsedData[i]["Raw"]);
+                    //                  form.SetDataText((tgParser.ParsedData[i]["Raw"]) +"\t");
+                    //                   AddData(tgParser.ParsedData[i]["Raw"]);
 
                 }
 
@@ -103,9 +128,9 @@ namespace MindwaveTestUI
                     //Console.WriteLine("Time:" + tgParser.ParsedData[i]["Time"]);
 
                     //A Poor Signal value of 0 indicates that your headset is fitting properly
-//                    Console.WriteLine("Poor Signal:" + tgParser.ParsedData[i]["PoorSignal"]);
+                    //                    Console.WriteLine("Poor Signal:" + tgParser.ParsedData[i]["PoorSignal"]);
 
-//                    poorSig = (byte)tgParser.ParsedData[i]["PoorSignal"];
+                    //                    poorSig = (byte)tgParser.ParsedData[i]["PoorSignal"];
                 }
 
 
@@ -124,16 +149,6 @@ namespace MindwaveTestUI
 
                 }
 
-
-                if (tgParser.ParsedData[i].ContainsKey("EegPowerDelta"))
-                {
-
-                    //Console.WriteLine("Delta: " + tgParser.ParsedData[i]["EegPowerDelta"]);
-  //                  form.SetDataText((tgParser.ParsedData[i]["EegPowerDelta"]) + "\t");
-//                    AddData(tgParser.ParsedData[i]["EegPowerDelta"]);
-
-                }
-
                 if (tgParser.ParsedData[i].ContainsKey("BlinkStrength"))
                 {
 
@@ -141,18 +156,20 @@ namespace MindwaveTestUI
 
                 }
 
-                if (tgParser.ParsedData[i].ContainsKey("MentalEffort"))
-                {
+                /*                if (tgParser.ParsedData[i].ContainsKey("MentalEffort"))
+                                {
 
-                    form.SetDataText((tgParser.ParsedData[i]["MentalEffort"]) + "\t");
-                    AddData(tgParser.ParsedData[i]["MentalEffort"]);
-                }
+                                    form.SetDataText((tgParser.ParsedData[i]["MentalEffort"]) + "\t");
+                                    AddData(tgParser.ParsedData[i]["MentalEffort"]);
+                                } */
 
-                foreach(string key in tgParser.ParsedData[i].Keys.ToArray())
-                {
-                    form.SetDataText(key + "\t");
-                }
-//                CalculateAndDisplayAverage();
+                /*                foreach(string key in tgParser.ParsedData[i].Keys.ToArray())
+                                {
+                                    form.SetDataText(key + "\t");
+                                } */
+                //                CalculateAndDisplayAverage();
+
+                #endregion
             }
 
         }
@@ -179,7 +196,7 @@ namespace MindwaveTestUI
 
             average = total / dataBuffer.Length;
 
-            form.SetAverageText(average.ToString());
+            form.SetClickAverageText(average.ToString());
         }
 
         public static void CloseConnector()
@@ -191,6 +208,28 @@ namespace MindwaveTestUI
                 connector.Close();
             }
             
+        }
+
+        public static void StartCollectingClickTrainingSample()
+        {
+            collectClickTrainingSample = true;
+        }
+
+        public static void StopCollectingClickTrainingSample()
+        {
+            collectClickTrainingSample = false;
+            form.SetClickAverageText(clickTrainingSample.Average().ToString());
+        }
+
+        public static void StartCollectingRelaxTrainingSample()
+        {
+            collectRelaxTrainingSample = true;
+        }
+
+        public static void StopCollectingRelaxTrainingSample()
+        {
+            collectRelaxTrainingSample = false;
+            form.SetRelaxAverageText(relaxTrainingSample.Average().ToString());
         }
     }
 }

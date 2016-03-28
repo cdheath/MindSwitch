@@ -33,6 +33,10 @@
             this.dataTb = new System.Windows.Forms.RichTextBox();
             this.averLbl = new System.Windows.Forms.Label();
             this.averTB = new System.Windows.Forms.TextBox();
+            this.trainingBtn = new System.Windows.Forms.Button();
+            this.clickTrainingBtn = new System.Windows.Forms.Button();
+            this.relaxAverTb = new System.Windows.Forms.TextBox();
+            this.relaxAverLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // connStatisLbl
@@ -66,29 +70,70 @@
             this.averLbl.AutoSize = true;
             this.averLbl.Location = new System.Drawing.Point(1112, 13);
             this.averLbl.Name = "averLbl";
-            this.averLbl.Size = new System.Drawing.Size(53, 13);
+            this.averLbl.Size = new System.Drawing.Size(117, 13);
             this.averLbl.TabIndex = 3;
-            this.averLbl.Text = "Average: ";
+            this.averLbl.Text = "Click Sample Average: ";
             // 
             // averTB
             // 
-            this.averTB.Location = new System.Drawing.Point(1171, 6);
+            this.averTB.Location = new System.Drawing.Point(1235, 6);
             this.averTB.Name = "averTB";
             this.averTB.ReadOnly = true;
             this.averTB.Size = new System.Drawing.Size(100, 20);
             this.averTB.TabIndex = 4;
             // 
-            // Form1
+            // trainingBtn
+            // 
+            this.trainingBtn.Location = new System.Drawing.Point(1112, 590);
+            this.trainingBtn.Name = "trainingBtn";
+            this.trainingBtn.Size = new System.Drawing.Size(357, 43);
+            this.trainingBtn.TabIndex = 5;
+            this.trainingBtn.Text = "Start Training - Relax";
+            this.trainingBtn.UseVisualStyleBackColor = true;
+            this.trainingBtn.Click += new System.EventHandler(this.trainingBtn_Click);
+            // 
+            // clickTrainingBtn
+            // 
+            this.clickTrainingBtn.Location = new System.Drawing.Point(1115, 541);
+            this.clickTrainingBtn.Name = "clickTrainingBtn";
+            this.clickTrainingBtn.Size = new System.Drawing.Size(357, 43);
+            this.clickTrainingBtn.TabIndex = 6;
+            this.clickTrainingBtn.Text = "Start Training  - Click";
+            this.clickTrainingBtn.UseVisualStyleBackColor = true;
+            this.clickTrainingBtn.Click += new System.EventHandler(this.clickTrainingBtn_Click);
+            // 
+            // relaxAverTb
+            // 
+            this.relaxAverTb.Location = new System.Drawing.Point(1235, 45);
+            this.relaxAverTb.Name = "relaxAverTb";
+            this.relaxAverTb.ReadOnly = true;
+            this.relaxAverTb.Size = new System.Drawing.Size(100, 20);
+            this.relaxAverTb.TabIndex = 8;
+            // 
+            // relaxAverLbl
+            // 
+            this.relaxAverLbl.AutoSize = true;
+            this.relaxAverLbl.Location = new System.Drawing.Point(1112, 48);
+            this.relaxAverLbl.Name = "relaxAverLbl";
+            this.relaxAverLbl.Size = new System.Drawing.Size(121, 13);
+            this.relaxAverLbl.TabIndex = 7;
+            this.relaxAverLbl.Text = "Relax Sample Average: ";
+            // 
+            // UIForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1481, 673);
+            this.Controls.Add(this.relaxAverTb);
+            this.Controls.Add(this.relaxAverLbl);
+            this.Controls.Add(this.clickTrainingBtn);
+            this.Controls.Add(this.trainingBtn);
             this.Controls.Add(this.averTB);
             this.Controls.Add(this.averLbl);
             this.Controls.Add(this.dataTb);
             this.Controls.Add(this.status);
             this.Controls.Add(this.connStatisLbl);
-            this.Name = "Form1";
+            this.Name = "UIForm";
             this.Text = "Form1";
             this.Deactivate += new System.EventHandler(this.Form1_Deactivate);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -104,6 +149,10 @@
         private System.Windows.Forms.RichTextBox dataTb;
         private System.Windows.Forms.Label averLbl;
         private System.Windows.Forms.TextBox averTB;
+        private System.Windows.Forms.Button trainingBtn;
+        private System.Windows.Forms.Button clickTrainingBtn;
+        private System.Windows.Forms.TextBox relaxAverTb;
+        private System.Windows.Forms.Label relaxAverLbl;
     }
 }
 
