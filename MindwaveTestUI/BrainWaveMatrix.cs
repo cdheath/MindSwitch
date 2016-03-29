@@ -10,7 +10,7 @@ namespace MindwaveTestUI
     {
         List<BrainWaveVector> waveMatrix = new List<BrainWaveVector>();
         int numberOfPoints = 0;  //number of vectors in sample - correspondes to matrix rows
-        int numberOfVariables = 8;  //corresponds to 8 waves in vector - correspondes to matrix columns
+        int numberOfVariables = 8;  //corresponds to 8 waves in vector - correspondes to matrix columns 
         int exitCode = 0;
         int numberOfClasses = 2;  //need both resting and click i think
         double[] linearCombiniationArray;
@@ -29,7 +29,7 @@ namespace MindwaveTestUI
         private double[,] ConvertVectorList()
         {
             numberOfPoints = waveMatrix.Count;
-            var tempMatrix = new double[numberOfPoints, numberOfVariables];
+            var tempMatrix = new double[numberOfPoints, numberOfVariables + 1]; //+ 1 for class column
 
             int matrixRow = 0;
 
@@ -50,7 +50,7 @@ namespace MindwaveTestUI
 
         private void ExectuteLDA(double[,] matrix)
         {
-            alglib.fisherlda(matrix, numberOfPoints, numberOfPoints, numberOfClasses, out exitCode, out linearCombiniationArray);
+            alglib.fisherlda(matrix, numberOfPoints, numberOfVariables, numberOfClasses, out exitCode, out linearCombiniationArray);
         }
     }
 }
