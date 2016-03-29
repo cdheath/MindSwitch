@@ -8,15 +8,24 @@ namespace MindwaveTestUI
 {
    public class BrainWaveVector
     {
-      double[] waveVector = new double[8];
+      double[] waveVector = new double[9]; //8 waves plus 1 final spot for class
+        double classNum;
+
+        //classNum either 0 for relax or 1 for click
+        public BrainWaveVector(double classNumber)
+        {
+            classNum = classNumber;
+        }
 
         //position represents the wave from the reading, 0 = theta, 1 = delta, 2 = alpha1, 3 = alpha2, 4 = beta1, 5 = beta2, 6 = gamma1, 7= gamma2
+
         public void AddValue(int position, double waveValue)
         {
             if(position >= 0 && position <= 7 )
             {
                 waveVector[position] = waveValue;
             }
+            waveVector[8] = classNum;
         }
 
         public double[] ReturntVector()

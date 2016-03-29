@@ -12,7 +12,7 @@ namespace MindwaveTestUI
         int numberOfPoints = 0;  //number of vectors in sample - correspondes to matrix rows
         int numberOfVariables = 8;  //corresponds to 8 waves in vector - correspondes to matrix columns
         int exitCode = 0;
-        int numberOfClasses = 1;  //need both resting and click i think
+        int numberOfClasses = 2;  //need both resting and click i think
         double[] linearCombiniationArray;
 
         public void AddVectorToMatrix(BrainWaveVector newWaveVector)

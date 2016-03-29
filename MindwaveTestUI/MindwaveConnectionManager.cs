@@ -17,11 +17,13 @@ namespace MindwaveTestUI
         static int BUFFER_SIZE = 5;
         static int bufferPointer = 0;
         static bool collectRelaxTrainingSample = false;
-        static BrainWaveMatrix relaxTrainingSample = new BrainWaveMatrix();
+ //       static BrainWaveMatrix relaxTrainingSample = new BrainWaveMatrix();
         static bool collectClickTrainingSample = false;
-        static BrainWaveMatrix clickTrainingSample = new BrainWaveMatrix();
+//        static BrainWaveMatrix clickTrainingSample = new BrainWaveMatrix();
+        static BrainWaveMatrix jointTrainingSample = new BrainWaveMatrix();
         static bool finishedTraining = false;
         static decimal THRESHOLD_VALUE = 1000;
+        static double trainingClassNumber = -1;
 
         public static void SetFormReference(UIForm formReference)
         {
@@ -74,7 +76,7 @@ namespace MindwaveTestUI
 
         static void OnDataReceived(object sender, EventArgs e)
         {
-            BrainWaveVector waveVector = new BrainWaveVector();
+            BrainWaveVector waveVector = new BrainWaveVector(trainingClassNumber);
 
             //Device d = (Device)sender;
             form.SetStatusText("Receiving Data");
@@ -204,11 +206,13 @@ namespace MindwaveTestUI
                 }
                 else if(collectClickTrainingSample && waveVector.HasValue())
                 {
-                    clickTrainingSample.AddVectorToMatrix(waveVector);
+                    //clickTrainingSample.AddVectorToMatrix(waveVector);
+                    jointTrainingSample.AddVectorToMatrix(waveVector);
                 }
                 else if(collectRelaxTrainingSample && waveVector.HasValue())
                 {
-                    relaxTrainingSample.AddVectorToMatrix(waveVector);
+                    //relaxTrainingSample.AddVectorToMatrix(waveVector);
+                    jointTrainingSample.AddVectorToMatrix(waveVector);
                 }
             }
 
@@ -253,26 +257,29 @@ namespace MindwaveTestUI
         public static void StartCollectingClickTrainingSample()
         {
             collectClickTrainingSample = true;
+            trainingClassNumber = 1;
         }
 
         public static void StopCollectingClickTrainingSample()
         {
             collectClickTrainingSample = false;
             //    form.SetClickAverageText(clickTrainingSample.Average().ToString());
-            clickTrainingSample.PreformLDAonMatrix();
+            // clickTrainingSample.PreformLDAonMatrix();
+            jointTrainingSample.PreformLDAonMatrix();
             finishedTraining = true;
         }
 
         public static void StartCollectingRelaxTrainingSample()
         {
             collectRelaxTrainingSample = true;
+            trainingClassNumber = 0;
         }
 
         public static void StopCollectingRelaxTrainingSample()
         {
             collectRelaxTrainingSample = false;
             //   form.SetRelaxAverageText(relaxTrainingSample.Average().ToString());
-            relaxTrainingSample.PreformLDAonMatrix();
+            //relaxTrainingSample.PreformLDAonMatrix();
         }
 
         public static bool CheckForEvent(double[] collectedData, double sampleAverage)
