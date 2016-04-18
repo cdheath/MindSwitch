@@ -28,7 +28,7 @@ namespace MindwaveTestUI
             waveVector[8] = classNum;
         }
 
-        public double[] ReturntVector()
+        public double[] ReturnVector()
         {
             return waveVector;
         }
@@ -44,6 +44,11 @@ namespace MindwaveTestUI
             }
 
             return false;
+        }
+
+        public double ReturnValueAtIndex(int index)
+        {
+            return waveVector[index];
         }
     }
 }

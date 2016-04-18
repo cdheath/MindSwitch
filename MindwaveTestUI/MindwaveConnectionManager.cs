@@ -14,16 +14,20 @@ namespace MindwaveTestUI
         static byte poorSig;
         static UIForm form;
         static double[] dataBuffer;
-        static int BUFFER_SIZE = 5;
+        static int BUFFER_SIZE = 2500;
         static int bufferPointer = 0;
         static bool collectRelaxTrainingSample = false;
- //       static BrainWaveMatrix relaxTrainingSample = new BrainWaveMatrix();
+        static BrainWaveMatrix relaxTrainingSample = new BrainWaveMatrix();
         static bool collectClickTrainingSample = false;
-//        static BrainWaveMatrix clickTrainingSample = new BrainWaveMatrix();
+        static BrainWaveMatrix clickTrainingSample = new BrainWaveMatrix();
         static BrainWaveMatrix jointTrainingSample = new BrainWaveMatrix();
         static bool finishedTraining = false;
-        static decimal THRESHOLD_VALUE = 1000;
+        static double THRESHOLD_VALUE = 0.5;
         static double trainingClassNumber = -1;
+        static double distance = 0;
+        static List<double> rawTrainingSampleArray = new List<double>();
+        static double rawTrainingSampleAverage = 0;
+        static double rawDataAverage = 0;
 
         public static void SetFormReference(UIForm formReference)
         {
@@ -97,6 +101,18 @@ namespace MindwaveTestUI
             {
 
                 #region Build waveVector with ParsedData
+                if(tgParser.ParsedData[i].ContainsKey("Raw"))
+                {
+                   if(collectClickTrainingSample)
+                    {
+                        rawTrainingSampleArray.Add(tgParser.ParsedData[i]["Raw"]);
+                    }
+                   else if(finishedTraining)
+                    {
+                        AddData(tgParser.ParsedData[i]["Raw"]);
+                    }
+                }
+
                 if (tgParser.ParsedData[i].ContainsKey("EegPowerTheta"))
                 {
                     waveVector.AddValue(0, tgParser.ParsedData[i]["EegPowerTheta"]);
@@ -201,19 +217,27 @@ namespace MindwaveTestUI
 
                 if(finishedTraining)
                 {
-                    //Check if correspondes to ClickTrainingSample
-
+                    if (waveVector.HasValue())
+                    {
+                        //Check if correspondes to ClickTrainingSample
+                        form.SetClickAverageText(CheckForEvent(clickTrainingSample, waveVector).ToString());
+            //            form.SetDataText(waveVector.ReturnVector()[1].ToString() + '\t');
+                    }
+                    form.SetRelaxAverageText(CheckForEvent(dataBuffer, rawTrainingSampleAverage, out rawDataAverage).ToString());
+                    form.SetDataText(rawDataAverage.ToString() + '\t');
                 }
                 else if(collectClickTrainingSample && waveVector.HasValue())
                 {
-                    //clickTrainingSample.AddVectorToMatrix(waveVector);
+                    clickTrainingSample.AddVectorToMatrix(waveVector);
                     jointTrainingSample.AddVectorToMatrix(waveVector);
                 }
                 else if(collectRelaxTrainingSample && waveVector.HasValue())
                 {
-                    //relaxTrainingSample.AddVectorToMatrix(waveVector);
+                    relaxTrainingSample.AddVectorToMatrix(waveVector);
                     jointTrainingSample.AddVectorToMatrix(waveVector);
                 }
+
+
             }
 
         }
@@ -263,10 +287,12 @@ namespace MindwaveTestUI
         public static void StopCollectingClickTrainingSample()
         {
             collectClickTrainingSample = false;
-            //    form.SetClickAverageText(clickTrainingSample.Average().ToString());
-            // clickTrainingSample.PreformLDAonMatrix();
-            jointTrainingSample.PreformLDAonMatrix();
+            // form.SetClickAverageText(clickTrainingSample.Average().ToString());
+            //clickTrainingSample.PreformLDAonMatrix();
+            //jointTrainingSample.PreformLDAonMatrix();
+            rawTrainingSampleAverage = CalculateSampleAverage(rawTrainingSampleArray);
             finishedTraining = true;
+            clickTrainingSample.CreateMeanVector();
         }
 
         public static void StartCollectingRelaxTrainingSample()
@@ -278,11 +304,11 @@ namespace MindwaveTestUI
         public static void StopCollectingRelaxTrainingSample()
         {
             collectRelaxTrainingSample = false;
-            //   form.SetRelaxAverageText(relaxTrainingSample.Average().ToString());
-            //relaxTrainingSample.PreformLDAonMatrix();
+           // form.SetRelaxAverageText(relaxTrainingSample.Average().ToString());
+            relaxTrainingSample.PreformLDAonMatrix();
         }
 
-        public static bool CheckForEvent(double[] collectedData, double sampleAverage)
+        public static bool CheckForEvent(double[] collectedData, double sampleAverage, out double collectedAverage)
         {
             double collectedDataAverage = 0;
 
@@ -292,8 +318,26 @@ namespace MindwaveTestUI
             }
 
             collectedDataAverage = collectedDataAverage / collectedData.Length;
+            
+            collectedAverage = collectedDataAverage;
+            
+            return Math.Abs((sampleAverage - collectedDataAverage)) < THRESHOLD_VALUE ? true : false;
+        }
 
-            return Math.Abs((decimal)(sampleAverage - collectedDataAverage)) < THRESHOLD_VALUE ? true : false;
+        public static bool CheckForEvent(BrainWaveMatrix trainedSampleMatrix, BrainWaveVector collectedVector)
+        {
+            return trainedSampleMatrix.CheckForMatch(collectedVector.ReturnVector(), out distance);
+        }
+
+        private static double CalculateSampleAverage(List<double> sampleArray)
+        {
+            double tempValue = 0;
+            foreach(double value in sampleArray)
+            {
+                tempValue += value;
+            }
+
+            return tempValue / rawTrainingSampleArray.Count();
         }
     }
 }

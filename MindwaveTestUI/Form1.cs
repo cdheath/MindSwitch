@@ -107,7 +107,7 @@ namespace MindwaveTestUI
                 MindwaveConnectionManager.StartCollectingRelaxTrainingSample();
 
                 var timer = new Timer();
-                timer.Interval = 8000;
+                timer.Interval = 3000;
                 timer.Tick += new EventHandler(TimerTick);
                 timer.Start();
                 trainingBtn.Text = "Training in Progess";
