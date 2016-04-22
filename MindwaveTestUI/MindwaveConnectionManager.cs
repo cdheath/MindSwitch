@@ -14,7 +14,7 @@ namespace MindwaveTestUI
         static byte poorSig;
         static UIForm form;
         static double[] dataBuffer;
-        static int BUFFER_SIZE = 2000;
+        static int BUFFER_SIZE = 1000;
         static int bufferPointer = 0;
         static bool collectRelaxTrainingSample = false;
         static BrainWaveMatrix relaxTrainingSample = new BrainWaveMatrix();
@@ -22,7 +22,8 @@ namespace MindwaveTestUI
         static BrainWaveMatrix clickTrainingSample = new BrainWaveMatrix();
         static BrainWaveMatrix jointTrainingSample = new BrainWaveMatrix();
         static bool finishedTraining = false;
-        static double errorMargin = 0.15;
+        static double averageMargin = 0.15;
+        static double magnitudeMargin = 10;
         static double trainingClassNumber = -1;
         static double distance = 0;
         static List<double> rawTrainingSampleArray = new List<double>();
@@ -30,7 +31,12 @@ namespace MindwaveTestUI
         static double rawDataAverage = 0;
         private const int WM_KEYDOWN = 0x0100;
         private static int matchCounter = 0;
+        private static int transformedMatchCounter = 0;
         private static  int numberOfConsecutiveMatchesRequired = 3;
+        static alglib.complex[] dataComplex;
+        static alglib.complex[] rawTrainingSampleComplex;
+        static double rawDataMagnitudeAverage = 0;
+        static double sampleMagnitudeAverage = 0;
 
         public static void SetFormReference(UIForm formReference)
         {
@@ -39,7 +45,8 @@ namespace MindwaveTestUI
 
         public static void Connect()
         {
-            form.SetMarginText(errorMargin.ToString());
+            form.SetMarginText(averageMargin.ToString());
+            form.SetMagnitudeMarginText(magnitudeMargin.ToString());
             connector = new Connector();
             connector.DeviceConnected += new EventHandler(OnDeviceConnected);
             connector.DeviceConnectFail += new EventHandler(OnDeviceFail);
@@ -116,7 +123,7 @@ namespace MindwaveTestUI
                         AddData(tgParser.ParsedData[i]["Raw"]);
                     }
                 }
-
+                #region Parse EEG Power Values
                 if (tgParser.ParsedData[i].ContainsKey("EegPowerTheta"))
                 {
                     waveVector.AddValue(0, tgParser.ParsedData[i]["EegPowerTheta"]);
@@ -156,6 +163,7 @@ namespace MindwaveTestUI
                 {
                     waveVector.AddValue(7, tgParser.ParsedData[i]["EegPowerGamma2"]);
                 }
+                #endregion
                 #endregion
 
                 #region ParsedData if statements from sample - kept for reference
@@ -228,15 +236,18 @@ namespace MindwaveTestUI
             //            form.SetDataText(waveVector.ReturnVector()[1].ToString() + '\t');
                     }
                     bool sampleMatch = CheckForEvent(dataBuffer, rawTrainingSampleAverage, out rawDataAverage);
+                    bool complexSampleMatch = CheckForEvent(sampleMagnitudeAverage, dataComplex, out rawDataMagnitudeAverage);
                     form.SetRelaxAverageText(sampleMatch.ToString());
                     form.SetClickAverageText(rawTrainingSampleAverage.ToString());
-                    form.SetDataText(rawDataAverage.ToString() + '\t');
+                    //form.SetDataText(rawDataAverage.ToString() + '\t');
+                    form.SetDataText(rawDataMagnitudeAverage.ToString() + '\t');
+                    form.SetMagnitudeEventText(complexSampleMatch.ToString());
 
                     if(sampleMatch)
                     {
                         if (matchCounter >= numberOfConsecutiveMatchesRequired)
                         {
-                            TieIntoWindow();
+ //                           TieIntoWindow();
                             matchCounter = 0;
                         }
                         matchCounter++;
@@ -245,6 +256,7 @@ namespace MindwaveTestUI
                     {
                         matchCounter = 0;
                     }
+
                 }
                 else if(collectClickTrainingSample && waveVector.HasValue())
                 {
@@ -271,6 +283,8 @@ namespace MindwaveTestUI
 
             dataBuffer[bufferPointer] = data;
             bufferPointer++;
+
+            alglib.fftr1d(dataBuffer, out dataComplex);
         }
 
         static void CalculateAndDisplayAverage()
@@ -313,6 +327,9 @@ namespace MindwaveTestUI
             rawTrainingSampleAverage = CalculateSampleAverage(rawTrainingSampleArray);
             finishedTraining = true;
             clickTrainingSample.CreateMeanVector();
+            alglib.fftr1d(rawTrainingSampleArray.ToArray(), out rawTrainingSampleComplex);
+            sampleMagnitudeAverage = AverageMagnitudeOfComplex(rawTrainingSampleComplex);
+            form.SetSampleMagnitudeText(sampleMagnitudeAverage.ToString());
         }
 
         public static void StartCollectingRelaxTrainingSample()
@@ -341,12 +358,19 @@ namespace MindwaveTestUI
             
             collectedAverage = collectedDataAverage;
             
-            return Math.Abs((sampleAverage - collectedDataAverage)) < errorMargin ? true : false;
+            return Math.Abs((sampleAverage - collectedDataAverage)) < averageMargin ? true : false;
         }
 
         public static bool CheckForEvent(BrainWaveMatrix trainedSampleMatrix, BrainWaveVector collectedVector)
         {
             return trainedSampleMatrix.CheckForMatch(collectedVector.ReturnVector(), out distance);
+        }
+        
+        public static bool CheckForEvent(double sampleAverageMagnitude, alglib.complex[] array2, out double averageMagnitude2)
+        {
+            averageMagnitude2 = AverageMagnitudeOfComplex(array2);
+
+            return Math.Abs(averageMagnitude2 - sampleAverageMagnitude) <= magnitudeMargin;
         }
 
         private static double CalculateSampleAverage(List<double> sampleArray)
@@ -385,19 +409,44 @@ namespace MindwaveTestUI
           //  SendMessage(readiumHandle, WM_KEYDOWN, Keys.Enter, IntPtr.Zero);
         }
 
-        public static void AdjustMargin(bool increaseErrorMargin)
+        public static void AdjustAverageMargin(bool increaseErrorMargin)
         {
             if(increaseErrorMargin)
             {
-                errorMargin += 0.01;
+                averageMargin += 0.01;
             }
             else
             {
-                errorMargin -= 0.01;
+                averageMargin -= 0.01;
             }
 
-            form.SetMarginText(errorMargin.ToString());
+            form.SetMarginText(averageMargin.ToString());
         }
 
+        public static void AdjustMagnitudeMargin(bool increaseErrorMargin)
+        {
+            if (increaseErrorMargin)
+            {
+                magnitudeMargin += 5;
+            }
+            else
+            {
+                magnitudeMargin -= 5;
+            }
+
+            form.SetMagnitudeMarginText(magnitudeMargin.ToString());
+        }
+
+        public static double AverageMagnitudeOfComplex(alglib.complex[] array)
+        {
+            double averageMagnitude = 0;
+
+            foreach(var frequency in array)
+            {
+                averageMagnitude += alglib.math.abscomplex(frequency);
+            }
+
+            return averageMagnitude / array.Length;
+        }
     }
 }

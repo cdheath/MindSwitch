@@ -180,6 +180,48 @@ namespace MindwaveTestUI
             }
         }
 
+        public void SetSampleMagnitudeText(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate () {
+                    SetSampleMagnitudeText(text);
+                }));
+            }
+            else
+            {
+                this.magAverTb.Text = text;
+            }
+        }
+
+        public void SetMagnitudeEventText(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate () {
+                    SetMagnitudeEventText(text);
+                }));
+            }
+            else
+            {
+                this.magEventTb.Text = text;
+            }
+        }
+
+        public void SetMagnitudeMarginText(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate () {
+                    SetMagnitudeMarginText(text);
+                }));
+            }
+            else
+            {
+                this.magMarginValTb.Text = text;
+            }
+        }
+
         private void debugModeBtn_Click(object sender, EventArgs e)
         {
            ToggleDebugMode();
@@ -196,6 +238,18 @@ namespace MindwaveTestUI
             averTB.Visible = showDebugFields;
             relaxAverTb.Visible = showDebugFields;
             sendEnterBtn.Visible = showDebugFields;
+            decMagMargValBtn.Visible = showDebugFields;
+            incMagMargValBtn.Visible = showDebugFields;
+            decreaseMarginBtn.Visible = showDebugFields;
+            increaseMarginBtn.Visible = showDebugFields;
+            magAverTb.Visible = showDebugFields;
+            magEventTb.Visible = showDebugFields;
+            magAverLbl.Visible = showDebugFields;
+            magEventLbl.Visible = showDebugFields;
+            magMarginLbl.Visible = showDebugFields;
+            magMarginValTb.Visible = showDebugFields;
+            marginLbl.Visible = showDebugFields;
+            marginTb.Visible = showDebugFields;
         }
 
         private void sendEnterBtn_Click(object sender, EventArgs e)
@@ -205,17 +259,27 @@ namespace MindwaveTestUI
 
         private void increaseMarginBtn_Click(object sender, EventArgs e)
         {
-            MindwaveConnectionManager.AdjustMargin(true);
+            MindwaveConnectionManager.AdjustAverageMargin(true);
         }
 
         private void decreaseMarginBtn_Click(object sender, EventArgs e)
         {
-            MindwaveConnectionManager.AdjustMargin(false);
+            MindwaveConnectionManager.AdjustAverageMargin(false);
         }
 
         private void UIForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             MindwaveConnectionManager.CloseConnector();
+        }
+
+        private void incMagMargValBtn_Click(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.AdjustMagnitudeMargin(true);
+        }
+
+        private void decMagMargValBtn_Click(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.AdjustMagnitudeMargin(false);
         }
     }
 }

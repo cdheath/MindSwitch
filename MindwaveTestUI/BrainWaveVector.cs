@@ -10,6 +10,7 @@ namespace MindwaveTestUI
     {
       double[] waveVector = new double[9]; //8 waves plus 1 final spot for class
         double classNum;
+        alglib.complex[] fftComplex;
 
         //classNum either 0 for relax or 1 for click
         public BrainWaveVector(double classNumber)
@@ -49,6 +50,11 @@ namespace MindwaveTestUI
         public double ReturnValueAtIndex(int index)
         {
             return waveVector[index];
+        }
+
+        public void CalculateFFT()
+        {
+            alglib.fftr1d(waveVector, out fftComplex);
         }
     }
 }
