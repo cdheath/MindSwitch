@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,6 +16,7 @@ namespace MindwaveTestUI
         private bool lockTraining;
         private bool clickTrainingComplete = false;
         private bool relaxTrainingComplete = false;
+        private bool showDebugFields = false;
 
         public UIForm()
         {
@@ -35,6 +37,8 @@ namespace MindwaveTestUI
         {
             MindwaveConnectionManager.SetFormReference(this);
             MindwaveConnectionManager.Connect();
+            picture.Visible = false;
+            ToggleDebugMode();
         }
 
         public void SetDataText(string text)
@@ -93,10 +97,24 @@ namespace MindwaveTestUI
             }
         }
 
+        public void SetMarginText(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate () {
+                    SetMarginText(text);
+                }));
+            }
+            else
+            {
+                this.marginTb.Text = text;
+            }
+        }
+
 
         private void Form1_Deactivate(object sender, EventArgs e)
         {
-            MindwaveConnectionManager.CloseConnector();
+
         }
 
         private void trainingBtn_Click(object sender, EventArgs e)
@@ -111,6 +129,7 @@ namespace MindwaveTestUI
                 timer.Tick += new EventHandler(TimerTick);
                 timer.Start();
                 trainingBtn.Text = "Training in Progess";
+
             }
         }
 
@@ -128,6 +147,7 @@ namespace MindwaveTestUI
             MindwaveConnectionManager.StopCollectingClickTrainingSample();
             lockTraining = false;
             clickTrainingComplete = true;
+            picture.Visible = false;
         }
 
         private void clickTrainingBtn_Click(object sender, EventArgs e)
@@ -138,10 +158,11 @@ namespace MindwaveTestUI
                 MindwaveConnectionManager.StartCollectingClickTrainingSample();
 
                 var timer = new Timer();
-                timer.Interval = 8000;
+                timer.Interval = 2000;
                 timer.Tick += new EventHandler(ClickTimerTick);
                 timer.Start();
                 clickTrainingBtn.Text = "Training in Progess";
+                picture.Visible = true;
             }
         }
 
@@ -157,6 +178,44 @@ namespace MindwaveTestUI
             {
                 this.resulLbl.Text = text;
             }
+        }
+
+        private void debugModeBtn_Click(object sender, EventArgs e)
+        {
+           ToggleDebugMode();
+        }
+
+        private void ToggleDebugMode()
+        {
+            showDebugFields = !showDebugFields;
+
+            trainingBtn.Visible = showDebugFields;
+            dataTb.Visible = showDebugFields;
+            averLbl.Visible = showDebugFields;
+            relaxAverLbl.Visible = showDebugFields;
+            averTB.Visible = showDebugFields;
+            relaxAverTb.Visible = showDebugFields;
+            sendEnterBtn.Visible = showDebugFields;
+        }
+
+        private void sendEnterBtn_Click(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.TieIntoWindow();
+        }
+
+        private void increaseMarginBtn_Click(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.AdjustMargin(true);
+        }
+
+        private void decreaseMarginBtn_Click(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.AdjustMargin(false);
+        }
+
+        private void UIForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            MindwaveConnectionManager.CloseConnector();
         }
     }
 }

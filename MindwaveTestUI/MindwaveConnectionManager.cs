@@ -1,10 +1,10 @@
 ﻿using NeuroSky.ThinkGear;
-using NeuroSky.ThinkGear.Algorithms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.Drawing;
 
 namespace MindwaveTestUI
 {
@@ -14,7 +14,7 @@ namespace MindwaveTestUI
         static byte poorSig;
         static UIForm form;
         static double[] dataBuffer;
-        static int BUFFER_SIZE = 2500;
+        static int BUFFER_SIZE = 2000;
         static int bufferPointer = 0;
         static bool collectRelaxTrainingSample = false;
         static BrainWaveMatrix relaxTrainingSample = new BrainWaveMatrix();
@@ -22,12 +22,15 @@ namespace MindwaveTestUI
         static BrainWaveMatrix clickTrainingSample = new BrainWaveMatrix();
         static BrainWaveMatrix jointTrainingSample = new BrainWaveMatrix();
         static bool finishedTraining = false;
-        static double THRESHOLD_VALUE = 0.5;
+        static double errorMargin = 0.15;
         static double trainingClassNumber = -1;
         static double distance = 0;
         static List<double> rawTrainingSampleArray = new List<double>();
         static double rawTrainingSampleAverage = 0;
         static double rawDataAverage = 0;
+        private const int WM_KEYDOWN = 0x0100;
+        private static int matchCounter = 0;
+        private static  int numberOfConsecutiveMatchesRequired = 3;
 
         public static void SetFormReference(UIForm formReference)
         {
@@ -36,6 +39,7 @@ namespace MindwaveTestUI
 
         public static void Connect()
         {
+            form.SetMarginText(errorMargin.ToString());
             connector = new Connector();
             connector.DeviceConnected += new EventHandler(OnDeviceConnected);
             connector.DeviceConnectFail += new EventHandler(OnDeviceFail);
@@ -220,11 +224,27 @@ namespace MindwaveTestUI
                     if (waveVector.HasValue())
                     {
                         //Check if correspondes to ClickTrainingSample
-                        form.SetClickAverageText(CheckForEvent(clickTrainingSample, waveVector).ToString());
+                       // form.SetClickAverageText(CheckForEvent(clickTrainingSample, waveVector).ToString());
             //            form.SetDataText(waveVector.ReturnVector()[1].ToString() + '\t');
                     }
-                    form.SetRelaxAverageText(CheckForEvent(dataBuffer, rawTrainingSampleAverage, out rawDataAverage).ToString());
+                    bool sampleMatch = CheckForEvent(dataBuffer, rawTrainingSampleAverage, out rawDataAverage);
+                    form.SetRelaxAverageText(sampleMatch.ToString());
+                    form.SetClickAverageText(rawTrainingSampleAverage.ToString());
                     form.SetDataText(rawDataAverage.ToString() + '\t');
+
+                    if(sampleMatch)
+                    {
+                        if (matchCounter >= numberOfConsecutiveMatchesRequired)
+                        {
+                            TieIntoWindow();
+                            matchCounter = 0;
+                        }
+                        matchCounter++;
+                    }
+                    else
+                    {
+                        matchCounter = 0;
+                    }
                 }
                 else if(collectClickTrainingSample && waveVector.HasValue())
                 {
@@ -321,7 +341,7 @@ namespace MindwaveTestUI
             
             collectedAverage = collectedDataAverage;
             
-            return Math.Abs((sampleAverage - collectedDataAverage)) < THRESHOLD_VALUE ? true : false;
+            return Math.Abs((sampleAverage - collectedDataAverage)) < errorMargin ? true : false;
         }
 
         public static bool CheckForEvent(BrainWaveMatrix trainedSampleMatrix, BrainWaveVector collectedVector)
@@ -339,5 +359,45 @@ namespace MindwaveTestUI
 
             return tempValue / rawTrainingSampleArray.Count();
         }
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [return: MarshalAs(UnmanagedType.Bool)]
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool PostMessage(IntPtr hWnd, int Msg, Keys wParam, IntPtr lParam);
+
+        [DllImport("User32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, Keys wParam, IntPtr lParam);
+
+        public static void TieIntoWindow()
+        {
+            //get using spy++
+            //     IntPtr readiumHandle = (IntPtr)000706F0;
+            IntPtr readiumHandle = FindWindow("Chrome_WidgetWin_1", "Readium");
+            SetForegroundWindow(readiumHandle);
+            SendKeys.SendWait("{ENTER}");
+
+          //  PostMessage(readiumHandle, WM_KEYDOWN, Keys.Enter, IntPtr.Zero);
+          //  SendMessage(readiumHandle, WM_KEYDOWN, Keys.Enter, IntPtr.Zero);
+        }
+
+        public static void AdjustMargin(bool increaseErrorMargin)
+        {
+            if(increaseErrorMargin)
+            {
+                errorMargin += 0.01;
+            }
+            else
+            {
+                errorMargin -= 0.01;
+            }
+
+            form.SetMarginText(errorMargin.ToString());
+        }
+
     }
 }
