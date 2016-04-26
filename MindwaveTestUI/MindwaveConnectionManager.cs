@@ -26,17 +26,18 @@ namespace MindwaveTestUI
         static double magnitudeMargin = 10;
         static double trainingClassNumber = -1;
         static double distance = 0;
-        static List<double> rawTrainingSampleArray = new List<double>();
+        static List<double> rawTrainingSampleArray;
         static double rawTrainingSampleAverage = 0;
         static double rawDataAverage = 0;
         private const int WM_KEYDOWN = 0x0100;
         private static int matchCounter = 0;
         private static int transformedMatchCounter = 0;
-        private static  int numberOfConsecutiveMatchesRequired = 3;
+        private static  int numberOfConsecutiveMatchesRequired = 15;
         static alglib.complex[] dataComplex;
         static alglib.complex[] rawTrainingSampleComplex;
         static double rawDataMagnitudeAverage = 0;
         static double sampleMagnitudeAverage = 0;
+        public static bool allowKeyEvent = true;
 
         public static void SetFormReference(UIForm formReference)
         {
@@ -245,9 +246,10 @@ namespace MindwaveTestUI
 
                     if(sampleMatch)
                     {
-                        if (matchCounter >= numberOfConsecutiveMatchesRequired)
+                        if (matchCounter >= numberOfConsecutiveMatchesRequired && allowKeyEvent)
                         {
- //                           TieIntoWindow();
+                            //                           TieIntoWindow();
+                           // allowKeyEvent = false;
                             matchCounter = 0;
                         }
                         matchCounter++;
@@ -255,6 +257,26 @@ namespace MindwaveTestUI
                     else
                     {
                         matchCounter = 0;
+                    }
+
+                    if (complexSampleMatch)
+                    {
+                        if (transformedMatchCounter >= numberOfConsecutiveMatchesRequired && allowKeyEvent)
+                        {
+                            TieIntoWindow();
+                            allowKeyEvent = false;
+                            ResetDataBuffer();
+                            //timer ensures event cannot be read for 1 second
+                            // form.StartEventRestTimer();
+
+                            transformedMatchCounter = 0;
+                        }
+                        transformedMatchCounter++;
+                    }
+                    else
+                    {
+                        transformedMatchCounter = 0;
+                        allowKeyEvent = true;
                     }
 
                 }
@@ -287,6 +309,15 @@ namespace MindwaveTestUI
             alglib.fftr1d(dataBuffer, out dataComplex);
         }
 
+        static void ResetDataBuffer()
+        {
+            for(int index = 0; index < dataBuffer.Length; index++)
+            {
+                dataBuffer[index] = 0;
+            }
+            bufferPointer = 0;
+        }
+
         static void CalculateAndDisplayAverage()
         {
             double total = 0;
@@ -314,6 +345,7 @@ namespace MindwaveTestUI
 
         public static void StartCollectingClickTrainingSample()
         {
+            rawTrainingSampleArray = new List<double>();
             collectClickTrainingSample = true;
             trainingClassNumber = 1;
         }
@@ -330,6 +362,7 @@ namespace MindwaveTestUI
             alglib.fftr1d(rawTrainingSampleArray.ToArray(), out rawTrainingSampleComplex);
             sampleMagnitudeAverage = AverageMagnitudeOfComplex(rawTrainingSampleComplex);
             form.SetSampleMagnitudeText(sampleMagnitudeAverage.ToString());
+            ResetDataBuffer();
         }
 
         public static void StartCollectingRelaxTrainingSample()
@@ -448,5 +481,6 @@ namespace MindwaveTestUI
 
             return averageMagnitude / array.Length;
         }
+
     }
 }

@@ -143,7 +143,7 @@ namespace MindwaveTestUI
 
         private void ClickTimerTick(object sender, EventArgs e)
         {
-            clickTrainingBtn.Text = "Training Complete";
+            clickTrainingBtn.Text = "Training Complete - Click to Rest";
             MindwaveConnectionManager.StopCollectingClickTrainingSample();
             lockTraining = false;
             clickTrainingComplete = true;
@@ -152,7 +152,7 @@ namespace MindwaveTestUI
 
         private void clickTrainingBtn_Click(object sender, EventArgs e)
         {
-            if (!lockTraining && !clickTrainingComplete)
+            if (!lockTraining)// && !clickTrainingComplete)
             {
                 lockTraining = true;
                 MindwaveConnectionManager.StartCollectingClickTrainingSample();
@@ -280,6 +280,19 @@ namespace MindwaveTestUI
         private void decMagMargValBtn_Click(object sender, EventArgs e)
         {
             MindwaveConnectionManager.AdjustMagnitudeMargin(false);
+        }
+
+        public void StartEventRestTimer()
+        {
+            var timer = new Timer();
+            timer.Interval = 1000;
+            timer.Tick += new EventHandler(EventResetTimerTicker);
+            timer.Start();
+        }
+
+        private void EventResetTimerTicker(object sender, EventArgs e)
+        {
+            MindwaveConnectionManager.allowKeyEvent = true;
         }
     }
 }
